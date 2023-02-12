@@ -2,6 +2,7 @@ package com.kakakpo.ojk_online_server.user.repository
 
 import com.kakakpo.ojk_online_server.DatabaseComponent
 import com.kakakpo.ojk_online_server.exception.OjkException
+import com.kakakpo.ojk_online_server.user.entity.Roles
 import com.kakakpo.ojk_online_server.user.entity.User
 import com.kakakpo.ojk_online_server.utils.orThrow
 import com.kakakpo.ojk_online_server.utils.toResult

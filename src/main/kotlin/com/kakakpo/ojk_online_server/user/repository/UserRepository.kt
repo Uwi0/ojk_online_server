@@ -1,5 +1,6 @@
 package com.kakakpo.ojk_online_server.user.repository
 
+import com.kakakpo.ojk_online_server.user.entity.Roles
 import com.kakakpo.ojk_online_server.user.entity.User
 
 interface UserRepository {

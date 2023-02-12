@@ -23,47 +23,53 @@ import java.util.stream.Collectors
 @Configuration
 class JWTConfig {
 
-    @Autowired
-    private lateinit var authenticationFilter: AuthenticationFilter
+	@Autowired
+	private lateinit var authenticationFilter: AuthenticationFilter
 
-    @Bean
-    fun filterChain(http: HttpSecurity): SecurityFilterChain {
-        http.sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .csrf()
-                .disable()
-                .addFilterAt(authenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
-                .authorizeHttpRequests()
-                .requestMatchers(*requestPermit.toTypedArray())
-                .permitAll()
-                .anyRequest()
-                .authenticated()
+	@Bean
+	fun filterChain(http: HttpSecurity): SecurityFilterChain {
+		http.sessionManagement()
+			.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+			.and()
+			.csrf()
+			.disable()
+			.addFilterAt(authenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
+			.authorizeHttpRequests()
+			.requestMatchers(*requestPermit.toTypedArray())
+			.permitAll()
+			.anyRequest()
+			.authenticated()
 
-        return http.build()
-    }
+		return http.build()
+	}
 
-    companion object {
-        val requestPermit = listOf("/api/ping", "/api/user/login", "/api/user/register")
+	companion object {
+		val requestPermit = listOf(
+			"/api_v1/ping",
+			"/api_v1/user/customer/login",
+			"/api_v1/user/driver/login",
+			"/api_v1/user/customer/register",
+			"/api_v1/user/driver/register"
+		)
 
-        fun generateToken(user: User): String {
-            val subject = user.id
-            val expired = Date(System.currentTimeMillis() + (60_000 * 60 * 24))
-            val granted = AuthorityUtils.commaSeparatedStringToAuthorityList(user.username)
-            val grantedStream = granted.stream().map { it.authority }.collect(Collectors.toList())
-            return Jwts.builder()
-                    .setSubject(subject)
-                    .claim(AuthenticationConstant.CLAIMS, grantedStream)
-                    .setExpiration(expired)
-                    .signWith(Keys.hmacShaKeyFor(AuthenticationConstant.SECRET.toByteArray()), SignatureAlgorithm.HS256)
-                    .compact()
-        }
+		fun generateToken(user: User): String {
+			val subject = user.id
+			val expired = Date(System.currentTimeMillis() + (60_000 * 60 * 24))
+			val granted = AuthorityUtils.commaSeparatedStringToAuthorityList(user.username)
+			val grantedStream = granted.stream().map { it.authority }.collect(Collectors.toList())
+			return Jwts.builder()
+				.setSubject(subject)
+				.claim(AuthenticationConstant.CLAIMS, grantedStream)
+				.setExpiration(expired)
+				.signWith(Keys.hmacShaKeyFor(AuthenticationConstant.SECRET.toByteArray()), SignatureAlgorithm.HS256)
+				.compact()
+		}
 
-        fun isPermit(request: HttpServletRequest): Boolean{
-            val path = request.servletPath
-            return requestPermit.contains(path)
-        }
-    }
+		fun isPermit(request: HttpServletRequest): Boolean {
+			val path = request.servletPath
+			return requestPermit.contains(path)
+		}
+	}
 
 
 }
